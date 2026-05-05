@@ -1,0 +1,24 @@
+.skills-container {
+  padding: 5% 10%;
+  text-align: left;
+
+  svg {
+    color: white;
+  }
+}
+
+.skills-container {
+  align-items: center;
+  text-align: left;
+}
+
+@media screen {
+  @media (max-width: 768px) {
+    .skills-container {
+      width: 90%;
+      padding-left: 5%;
+      padding-right: 5%;
+      padding-bottom: 5%;
+    }
+  }
+}

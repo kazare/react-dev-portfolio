@@ -1,13 +1,11 @@
 import React, { useRef, useState } from 'react';
 import '../assets/styles/Contact.scss';
-// import emailjs from '@emailjs/browser';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import SendIcon from '@mui/icons-material/Send';
 import TextField from '@mui/material/TextField';
 
 function Contact() {
-
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [message, setMessage] = useState<string>('');
@@ -18,35 +16,44 @@ function Contact() {
 
   const form = useRef();
 
-  const sendEmail = (e: any) => {
+  const sendEmail = async (e: any) => {
     e.preventDefault();
 
-    setNameError(name === '');
-    setEmailError(email === '');
-    setMessageError(message === '');
+    const hasNameError = name === '';
+    const hasEmailError = email === '';
+    const hasMessageError = message === '';
 
-    /* Uncomment below if you want to enable the emailJS */
+    setNameError(hasNameError);
+    setEmailError(hasEmailError);
+    setMessageError(hasMessageError);
 
-    // if (name !== '' && email !== '' && message !== '') {
-    //   var templateParams = {
-    //     name: name,
-    //     email: email,
-    //     message: message
-    //   };
+    if (hasNameError || hasEmailError || hasMessageError) return;
 
-    //   console.log(templateParams);
-    //   emailjs.send('service_id', 'template_id', templateParams, 'api_key').then(
-    //     (response) => {
-    //       console.log('SUCCESS!', response.status, response.text);
-    //     },
-    //     (error) => {
-    //       console.log('FAILED...', error);
-    //     },
-    //   );
-    //   setName('');
-    //   setEmail('');
-    //   setMessage('');
-    // }
+    try {
+      const response = await fetch('https://formspree.io/f/xkoybwjl', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+        }),
+      });
+
+      if (response.ok) {
+        alert('Message sent successfully!');
+        setName('');
+        setEmail('');
+        setMessage('');
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+    } catch (error) {
+      alert('Something went wrong. Please try again.');
+    }
   };
 
   return (
@@ -54,15 +61,14 @@ function Contact() {
       <div className="items-container">
         <div className="contact_wrapper">
           <h1>Contact Me</h1>
-          <p>Got a project waiting to be realized? Let's collaborate and make it happen!</p>
           <Box
             ref={form}
+            onSubmit={sendEmail}
             component="form"
-            noValidate
             autoComplete="off"
-            className='contact-form'
+            className="contact-form"
           >
-            <div className='form-flex'>
+            <div className="form-flex">
               <TextField
                 required
                 id="outlined-required"
@@ -73,19 +79,22 @@ function Contact() {
                   setName(e.target.value);
                 }}
                 error={nameError}
-                helperText={nameError ? "Please enter your name" : ""}
+                helperText={nameError ? 'Please enter your name' : ''}
               />
               <TextField
                 required
                 id="outlined-required"
-                label="Email / Phone"
+                label="Email"
+                inputProps={{
+                  type: 'email',
+                }}
                 placeholder="How can I reach you?"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                 }}
                 error={emailError}
-                helperText={emailError ? "Please enter your email or phone number" : ""}
+                helperText={emailError ? 'Please enter your email' : ''}
               />
             </div>
             <TextField
@@ -101,9 +110,9 @@ function Contact() {
                 setMessage(e.target.value);
               }}
               error={messageError}
-              helperText={messageError ? "Please enter the message" : ""}
+              helperText={messageError ? 'Please enter the message' : ''}
             />
-            <Button variant="contained" endIcon={<SendIcon />} onClick={sendEmail}>
+            <Button type="submit" variant="contained" endIcon={<SendIcon />}>
               Send
             </Button>
           </Box>
